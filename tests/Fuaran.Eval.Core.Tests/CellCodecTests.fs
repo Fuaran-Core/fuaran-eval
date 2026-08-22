@@ -210,6 +210,37 @@ let cellTests =
               | other -> failtestf "expected a MemberTypeMismatch for run_index, got %A" other
           }
 
+          test "a cell carrying no provenance reads as UNSTAMPED, not as unreadable" {
+              // This library's own doctrine, applied to its own reader: every
+              // stamp field may be empty and empty means unstamped. A corpus
+              // whose provenance is the thing under investigation must still be
+              // readable, or the reader is useless exactly where it is needed.
+              let stripped =
+                  toJson encodeVerdicts sample
+                  |> fun j -> j.Replace("\"cohort\"", "\"_cohort\"").Replace("\"harness_sha\"", "\"_harness_sha\"")
+
+              match ofJson decodeVerdicts stripped with
+              | Error e -> failtestf "an unstamped cell must be readable: %s" e.Message
+              | Ok back ->
+                  Expect.equal back.Stamp.CohortId "" "absent cohort reads as unstamped"
+                  Expect.equal back.Stamp.HarnessSha "" "absent harness sha reads as unstamped"
+                  Expect.isFalse back.Stamp.IsComplete "and the stamp says so"
+          }
+
+          test "a MISSPELLED identity member is still refused" {
+              // The other half of the same decision: laxity about provenance
+              // must not become laxity about the members the census keys off,
+              // which is the drift the module exists to catch.
+              for member' in [ "task_id"; "provider"; "parse_reason"; "notes"; "raw_output" ] do
+                  let broken =
+                      toJson encodeVerdicts sample
+                      |> fun j -> j.Replace($"\"{member'}\"", $"\"x_{member'}\"")
+
+                  match ofJson decodeVerdicts broken with
+                  | Error(CellReadError.MissingMember name) when name = member' -> ()
+                  | other -> failtestf "expected a MissingMember for %s, got %A" member' other
+          }
+
           test "a domain that cannot read its own verdict is told so, distinctly" {
               let stripped =
                   toJson encodeVerdicts sample

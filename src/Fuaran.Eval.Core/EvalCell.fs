@@ -33,6 +33,14 @@
 /// failures are typed: a caller distinguishes "this file is not JSON" from
 /// "this file is a cell missing its condition" from "the domain could not read
 /// its own verdict", and each of those wants a different response.
+///
+/// **It requires the identity and label members and not the provenance ones**,
+/// which is this library's own doctrine applied to itself: a `ProvenanceStamp`
+/// field is allowed to be empty and empty means UNSTAMPED, so a cell that never
+/// carried a cohort id is unstamped rather than unreadable. A cell missing
+/// `condition` or `parse_reason` is a different thing entirely — a
+/// differently-spelled cell — and that is the defect this module exists to
+/// catch, so those are refused.
 module Fuaran.Eval.Core.EvalCell
 
 open Fuaran.Eval.Core.EvalJson
@@ -338,12 +346,29 @@ let ofMembers
         let! parseReason = requireString mParseReason ms
         let! gateOutcomes = readGateOutcomes ms
         let! notes = requireString mNotes ms
-        let! cohortId = requireString mCohort ms
-        let! harnessSha = requireString mHarnessSha ms
-        let! promptSha = requireString mPromptSha ms
-        let! decoderVersion = requireString mDecoderVersion ms
         let! stampGates = readStampGates ms
         let! rawOutput = requireString mRawOutput ms
+
+        // The provenance block is READ AS UNSTAMPED WHEN ABSENT, and that is not
+        // laxity — it is this library's own doctrine applied to its own reader.
+        // Every field of a `ProvenanceStamp` is allowed to be empty, and empty
+        // means UNSTAMPED, never "fine". A cell that never carried a cohort id
+        // is unstamped for that field; refusing to READ it would make the
+        // reader unusable on exactly the corpora whose provenance is the thing
+        // under investigation. The identity and label members above stay
+        // REQUIRED, because a cell missing one of those is not an unstamped
+        // cell — it is a differently-spelled one, which is the defect this
+        // module exists to catch.
+        let stamped name =
+            match tryMember name ms with
+            | Some(JStr s) -> Ok s
+            | None -> Ok ""
+            | Some _ -> Error(MemberTypeMismatch(name, "a string"))
+
+        let! cohortId = stamped mCohort
+        let! harnessSha = stamped mHarnessSha
+        let! promptSha = stamped mPromptSha
+        let! decoderVersion = stamped mDecoderVersion
 
         let parsePassed =
             match tryMember mParsePassed ms with

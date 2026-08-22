@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The library depends on FSharp.Core and the framework. Nothing else.
+         Expecto is test-only and never reaches the package. -->
+    <PackageVersion Include="FSharp.Core" Version="10.1.300" />
+    <PackageVersion Include="Expecto" Version="10.2.3" />
+  </ItemGroup>
+</Project>

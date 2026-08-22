@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+    <Nullable>enable</Nullable>
+    <!-- 0.1.0 (2026-08-22): the first version this substrate is packed and consumed at, rather
+         than compiled as source inside its first consumer's project. 0.x pre-1.0 posture: the
+         public surface may still move, and a change to it advances this number IN THE SAME
+         COMMIT — a folder feed keys packages by id and version, so repacking an unchanged
+         version swaps the contract under every pinned consumer while their extracted caches keep
+         serving the old bits. That producer-side rule is the point of the boundary: an
+         in-project source file can absorb a surface change silently, a package cannot. -->
+    <Version>0.1.0</Version>
+    <Authors>Andrew J. Willshire</Authors>
+    <Company>Diametrical Ltd</Company>
+    <Copyright>Copyright 2026 Diametrical Ltd</Copyright>
+    <!-- No <PackageLicenseExpression>: the licence is deliberately unset. See DECISIONS D5 —
+         choosing one is an act to be taken deliberately, not implied by the code having been
+         written to a standard that would allow it. -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+</Project>

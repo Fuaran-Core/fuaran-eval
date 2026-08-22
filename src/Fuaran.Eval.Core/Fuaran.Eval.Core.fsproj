@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Fuaran.Eval.Core</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageId>Fuaran.Eval.Core</PackageId>
+    <Description>The generic eval-harness substrate: provenance stamps for published figures, the model-provider seam with its fake-replay posture, and the demand-census engine generic over a domain seam. No gate, no domain vocabulary, no dependency beyond FSharp.Core.</Description>
+    <PackageTags>eval;provenance;harness;fsharp</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Compile order is the dependency order, and it is the whole of the
+         dependency graph: EvalProvenance and EvalProvider stand alone,
+         DemandSeams builds on DemandSidecar, and DemandCensus builds on both.
+         Nothing here reaches forward. -->
+    <Compile Include="EvalProvenance.fs" />
+    <Compile Include="EvalProvider.fs" />
+    <Compile Include="DemandSidecar.fs" />
+    <Compile Include="DemandSeams.fs" />
+    <Compile Include="DemandCensus.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- FSharp.Core and the framework, and deliberately nothing else. See
+         DECISIONS D2: the dependency list is a property this library defends,
+         because it is what lets a harness adopt the substrate without
+         inheriting anything else the substrate's other consumers believe. -->
+    <PackageReference Include="FSharp.Core" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

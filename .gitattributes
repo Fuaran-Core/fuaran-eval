@@ -1,0 +1,48 @@
+# Pin canonical text-file line endings to LF.
+#
+# `text=auto` lets git detect text vs. binary; `eol=lf` pins the
+# canonical in-repo line ending. On a Windows checkout, files stay LF
+# on disk (no autocrlf round-trip churn), eliminating the recurring
+# "LF will be replaced by CRLF the next time Git touches it" warnings
+# and phantom "modified" churn on tool-regenerated files.
+
+* text=auto eol=lf
+
+# Explicit binary types — git's auto-detection is usually correct
+# but spell out the common ones to be safe.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.svg   binary
+*.dll   binary
+*.exe   binary
+*.pdb   binary
+*.nupkg binary
+*.snupkg binary
+*.zip   binary
+*.tar   binary
+*.gz    binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+
+# --- Op-stream defence-in-depth ---
+#
+# A single-file LINEAR op-stream (`.roadmap/ops.jsonl`) and its signed-head sidecar
+# (`.roadmap/attestations.jsonl`) are append-only. Prefer a UNION merge (keep both sides' appended
+# lines) over a hard conflict, so an accidental concurrent extension INTERLEAVES rather than
+# clobbers one side's ops. A union merge breaks the SHA-256 chain by construction — that is the
+# point: a torn chain is DETECTED by the store's own diagnosis and repair pass, where a clobbered
+# one is a silent corruption nothing would report. (Per-lane DAG streams under `.roadmap/ops/` are
+# `merge=binary` instead — lane files are content-addressed and must never interleave; that rule is
+# written by the store's own lane migration, not here.)
+#
+# This repository holds no live store of its own. The rule is here because the conformance corpus
+# ships a reference store under `wire-fixtures/dispatch/reference-side/.roadmap/`, whose bytes are
+# pinned and must survive a merge unaltered.
+**/.roadmap/ops.jsonl          merge=union
+**/.roadmap/attestations.jsonl merge=union

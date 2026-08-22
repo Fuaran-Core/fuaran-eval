@@ -57,7 +57,7 @@ let tests =
               // Verify the probe before trusting its verdict. A path bug here
               // would turn every assertion below into a pass over an empty set.
               let files = sources ()
-              Expect.equal (Array.length files) 5 "all five modules are swept"
+              Expect.equal (Array.length files) 8 "all eight modules are swept"
 
               Expect.isTrue
                   (files |> Array.forall (fun (_, t) -> t.Length > 500))

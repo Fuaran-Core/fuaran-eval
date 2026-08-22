@@ -271,3 +271,63 @@ nothing if nobody can. There is no version of this library whose *terms* are the
 The gate stays and the standard stays. A licence permits publication; it does not maintain the
 property that makes publishing worth anything, and the day a convenient reference to something a
 reader cannot look up gets in is the day this stops being a substrate anyone else can hold.
+
+## D12 — The substrate owns the bytes of the artefacts it types
+
+**2026-08-22, 0.3.0.**
+
+Two gaps, recorded by the second consumer's bootstrap and closed together because they are one
+species. This library **typed** a stored result cell's read-slice and typed the re-gate sidecar
+row — including the reasoning for why that row carries both the recorded and the fresh label — and
+then wrote neither. A type with no codec beside it is not a contract; it is a suggestion that each
+adopting harness re-derives by reading the reader's source.
+
+The failure mode is silent in both directions, which is why neither would have surfaced on its own.
+A harness that spells `parse_reason` as `reason` writes cells the census loads and reports as
+clean, because a tolerant loader cannot tell an absent field from a well-formed negative. Two
+harnesses that each invent a sidecar spelling never notice, because each reads only its own
+manifest. Nothing fails until someone tries to read both, at which point the artefacts are years
+old.
+
+**What the substrate now owns is the ENVELOPE, and only the envelope.** `EvalCell<'Verdict>` names
+the identity axes, the primary gate label the census keys off, the per-gate outcomes, the
+provenance stamp, and nothing a domain would recognise as its own. Two slots carry everything else:
+the verdict is a **type parameter**, the same construct and the same argument as D9 — it is the
+only shape that carries a domain's judgement without naming what was judged — and `Extra` carries
+the members a domain adds, as values rather than as names this library would otherwise have to
+learn. `EvalJson` exists for that second slot: writing members it is not allowed to name is what
+owning the bytes actually requires.
+
+**Three properties are checked rather than asserted.**
+
+- **Round trip in BOTH directions.** `read (write x) = x` alone passes for a writer that drops a
+  member the reader also ignores; `write (read j) = j` alone passes for a codec that cannot
+  represent anything the sample does not contain. Together they pin the bytes. What makes the pair
+  exact is the decoder's signature: a domain's verdict decoder answers with the verdict **and the
+  members it did not consume**, so whatever it leaves behind is what a re-encode reproduces.
+- **Absent is not false, in the direction each artefact needs.** A cell OMITS `parse_passed` when
+  there is no label, because a case that emitted nothing to decode did not fail to decode. A
+  manifest row writes `"recorded": null`, because a row is a claim about one specific cell and "this
+  cell carried no label" is a positive finding it must state. Opposite spellings, and each is right
+  for its artefact rather than an inconsistency to be tidied.
+- **`flipped` is written and never believed.** It is derived from `recorded` and `fresh`, and it is
+  written because it is the finding the artefact exists to surface and manifests are read by eye and
+  by line-oriented tools at least as often as they are parsed. The decoder ignores the stored member
+  and recomputes, so a hand-edited manifest cannot assert a flip its own labels deny.
+
+**Two shapes the phase asked for are offered as EXPORTS, not replacements**, and the distinction is
+the point. The intake ledger's own artefact is a markdown table, and that is not an accident to be
+normalised away: it is the thing a person edits in the same pass they decide something, and the
+moment intake needs a form, gaps go back to being everyone else's error. A cluster's own artefact is
+a printed report, which is the right shape for the reader it is written for. Both codecs exist for
+the consumer that is not a person — a drift check, an index, a cross-cohort comparison, which is
+stage 5's whole question and not something anyone should answer by diffing rendered text.
+
+**On the existing consumers, and why one adopted the writer and one did not.** The greenfield
+consumer retired its hand-rolled writer and sidecar spelling outright. The older one adopted the
+sidecar codec and the cell READER, and kept its own cell writer, deliberately: its stored cell
+carries some sixty domain fields whose absent-versus-false semantics were established one at a time
+over a long series of additive changes, and pushing that through a generic writer would re-encode
+every one of those distinctions by hand for no gain the envelope does not already give. What it took
+instead is the check that matters — its written cells are read by this library's reader, so the
+envelope contract now has a typed holder at both ends. That is the whole of what the gap was.

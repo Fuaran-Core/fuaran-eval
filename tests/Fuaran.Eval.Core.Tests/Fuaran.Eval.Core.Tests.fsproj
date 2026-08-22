@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="ProvenanceTests.fs" />
     <Compile Include="ProviderTests.fs" />
+    <Compile Include="CellCodecTests.fs" />
     <Compile Include="CensusTests.fs" />
     <Compile Include="GateVocabularyTests.fs" />
     <Compile Include="Program.fs" />

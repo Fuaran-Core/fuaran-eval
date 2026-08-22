@@ -21,8 +21,17 @@
          carrying a CALLER-SUPPLIED invocation key, so a replay looks up by what the harness
          considers one invocation instead of by a rule the seam guessed. `DemandCensus.printReport`
          gained a `ReportLabels` argument for the four lines only a domain can word. See DECISIONS
-         D9 and D10. -->
-    <Version>0.2.0</Version>
+         D9 and D10.
+
+         0.3.0 (2026-08-22): the substrate owns the BYTES of the artefacts it already typed. A
+         MINOR bump and purely ADDITIVE — three new modules (`EvalJson`, `EvalCell`,
+         `SidecarCodec`), no existing type, member, signature or printed string changed — so a
+         consumer that raises the pin and adopts nothing compiles unchanged and writes the same
+         files. It closes the two gaps the second consumer's bootstrap recorded: there was no
+         typed result-cell record and no writer or reader for one, so each harness hand-rolled the
+         field names the census keys off; and the re-gate sidecar row was typed with no codec, so
+         one documented artefact acquired one spelling per harness. See DECISIONS D12. -->
+    <Version>0.3.0</Version>
     <Authors>Andrew J. Willshire</Authors>
     <Company>Diametrical Ltd</Company>
     <Copyright>Copyright 2026 Diametrical Ltd</Copyright>

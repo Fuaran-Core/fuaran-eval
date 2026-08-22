@@ -15,7 +15,10 @@ dotnet add package Fuaran.Eval.Core
 |---|---|
 | `Fuaran.Eval.Core.EvalProvenance` | the provenance-stamp shapes — cohort id, harness commit, prompt hash, the gate identities that produced the labels, and the wire decoder version named separately from them |
 | `Fuaran.Eval.Core.EvalProvider` | the provider seam — `EvalRequest` / `EvalUsage` / `EvalCompletion<'Result>` / `IEvalProvider<'Result>`, plus the fake-replay posture that refuses on a miss rather than generating |
+| `Fuaran.Eval.Core.EvalJson` | the small JSON value the codecs write with, and the deterministic renderer — the mechanism by which this library writes members it is not allowed to *name* |
+| `Fuaran.Eval.Core.EvalCell` | the stored result cell: `EvalCell<'Verdict>` — identity axes, the primary gate label, per-gate outcomes, the provenance stamp — with a deterministic writer and a total reader whose failures are typed |
 | `Fuaran.Eval.Core.DemandSidecar` | the demand-loop data shapes — the cell slice a census reads, the intake-ledger row, the re-gate sidecar row, and the cluster |
+| `Fuaran.Eval.Core.SidecarCodec` | the bytes of those shapes: the re-gate manifest line, plus export codecs for the ledger row and the cluster |
 | `Fuaran.Eval.Core.DemandSeams` | `DomainCensusSeam` — everything the census needs from a domain, and by construction everything about the census that is *not* transferable |
 | `Fuaran.Eval.Core.DemandCensus` | the census engine, generic over that seam: cluster the failures, diff them against the intake ledger, and fail the run on a repeated cluster nobody wrote down |
 
@@ -83,6 +86,13 @@ domain with no such structure supplies `DemandSeams.minimal` and loses only the 
 not have. The four lines of the printed report that say something only a domain can say are
 `ReportLabels`, supplied alongside the seam; `DemandSeams.genericLabels` words them for a domain
 that has no tier vocabulary and no document to point at.
+
+**The cell's DOMAIN PAYLOAD is absent too, and that is why it round-trips.** `EvalCell` names the
+envelope — who ran what, under which gate, with what provenance — and nothing else. A domain's own
+judgement goes through the `'Verdict` type parameter, and its own extra members ride in `Extra` as
+values. So a harness with sixty domain fields is not obliged to hand any of them to this library in
+order to have the envelope written correctly, and this library never grows a field it cannot
+explain to a second domain.
 
 ## Standing it up in a new domain
 

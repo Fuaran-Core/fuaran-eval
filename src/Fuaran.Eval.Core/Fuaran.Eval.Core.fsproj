@@ -11,12 +11,16 @@
 
   <ItemGroup>
     <!-- Compile order is the dependency order, and it is the whole of the
-         dependency graph: EvalProvenance and EvalProvider stand alone,
-         DemandSeams builds on DemandSidecar, and DemandCensus builds on both.
-         Nothing here reaches forward. -->
+         dependency graph: EvalProvenance, EvalProvider and EvalJson stand
+         alone, EvalCell builds on the first and third, DemandSeams and
+         SidecarCodec build on DemandSidecar, and DemandCensus builds on
+         DemandSidecar and DemandSeams. Nothing here reaches forward. -->
     <Compile Include="EvalProvenance.fs" />
     <Compile Include="EvalProvider.fs" />
+    <Compile Include="EvalJson.fs" />
+    <Compile Include="EvalCell.fs" />
     <Compile Include="DemandSidecar.fs" />
+    <Compile Include="SidecarCodec.fs" />
     <Compile Include="DemandSeams.fs" />
     <Compile Include="DemandCensus.fs" />
   </ItemGroup>

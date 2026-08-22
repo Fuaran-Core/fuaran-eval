@@ -14,7 +14,7 @@ dotnet add package Fuaran.Eval.Core
 | Module | What it is |
 |---|---|
 | `Fuaran.Eval.Core.EvalProvenance` | the provenance-stamp shapes — cohort id, harness commit, prompt hash, the gate identities that produced the labels, and the wire decoder version named separately from them |
-| `Fuaran.Eval.Core.EvalProvider` | the provider seam — `EvalMessage` / `EvalCompletion` / `IEvalProvider`, plus the fake-replay posture that refuses on a miss rather than generating |
+| `Fuaran.Eval.Core.EvalProvider` | the provider seam — `EvalRequest` / `EvalUsage` / `EvalCompletion<'Result>` / `IEvalProvider<'Result>`, plus the fake-replay posture that refuses on a miss rather than generating |
 | `Fuaran.Eval.Core.DemandSidecar` | the demand-loop data shapes — the cell slice a census reads, the intake-ledger row, the re-gate sidecar row, and the cluster |
 | `Fuaran.Eval.Core.DemandSeams` | `DomainCensusSeam` — everything the census needs from a domain, and by construction everything about the census that is *not* transferable |
 | `Fuaran.Eval.Core.DemandCensus` | the census engine, generic over that seam: cluster the failures, diff them against the intake ledger, and fail the run on a repeated cluster nobody wrote down |
@@ -31,9 +31,42 @@ foreign stamp".
 The same instinct runs through the rest. `EvalProvider.replay` fails on a miss rather than
 inventing a completion, because a fake that silently generates turns a replay run into an
 unlabelled live run — indistinguishable from the real thing in the result file, and the one failure
-a replay harness must not be able to have. `RegateRow` carries both the recorded label and the
-fresh one, because the *delta* is the evidence and a shape that stored only the correction would
-destroy the proof that anything moved.
+a replay harness must not be able to have. `EvalCompletion.Usage` is an option because a provider
+that reports no counters must not look like one that ran free. `RegateRow` carries both the
+recorded label and the fresh one, because the *delta* is the evidence and a shape that stored only
+the correction would destroy the proof that anything moved.
+
+## What a provider returns is yours
+
+`EvalCompletion<'Result>` is generic, and that is the seam's one real design decision. A harness
+whose provider answers in prose instantiates it at `string`:
+
+```fsharp
+let client: EvalProvider.ITextEvalProvider =
+    EvalProvider.ofFuncs "acme" "acme-1" (fun req -> async { return { Result = ask req; Usage = None } })
+```
+
+A harness whose provider reduces a response to a closed set of outcomes — a tool branch, a parse
+refusal — instantiates it at that union and keeps every case, because the discrimination *is* the
+result its scorer reads:
+
+```fsharp
+type Emission =
+    | EmittedDocument of json: string
+    | EmittedOp of json: string
+    | Failed of reason: string
+
+let client: EvalProvider.IEvalProvider<Emission> = EvalProvider.ofFuncs "acme" "acme-1" invoke
+```
+
+The substrate carries the value and reads none of it, which is how it can carry a branch without
+ever learning a branch name. Note that it does not model failure either: if a domain wants a
+"failed" outcome it is a case of *its* union, because deciding an emission is bad is a judgement
+about emitted content — the judgement this library does not make anywhere.
+
+The invocation key is yours too. `EvalRequest.InvocationKey` is what `replay` looks a recording up
+by, so a case-driven harness keys on its case id and a conversational one uses
+`requestKeyedOnLastMessage`. The seam does not guess.
 
 ## What is deliberately absent
 
@@ -47,7 +80,9 @@ domain two, which is worse than none. What this library models is the *naming* o
 census needs one — a task-id grammar, the own-language predicate, the criterion-verdict source, an
 adversarial-tier marker, a probe-corpus marker — it takes it as a field of `DomainCensusSeam`. A
 domain with no such structure supplies `DemandSeams.minimal` and loses only the exclusions it does
-not have.
+not have. The four lines of the printed report that say something only a domain can say are
+`ReportLabels`, supplied alongside the seam; `DemandSeams.genericLabels` words them for a domain
+that has no tier vocabulary and no document to point at.
 
 ## Standing it up in a new domain
 
@@ -60,7 +95,7 @@ let seam: DemandSeams.DomainCensusSeam =
         IsAdversarialTierTask = fun id -> id.StartsWith "bait-" }
 
 let report = DemandCensus.runCensus seam [ "results" ] None "docs/DEMAND-LOG.md" None
-exit (DemandCensus.printReport seam 2 false report)
+exit (DemandCensus.printReport seam DemandSeams.genericLabels 2 false report)
 ```
 
 `runCensus` reads stored result files and nothing else — it spends no provider tokens and opens no
@@ -75,3 +110,7 @@ pwsh ./run.ps1
 Tool restore, Fantomas, the publication-boundary sweep, build, and the full suite. See
 [CONTRIBUTING.md](CONTRIBUTING.md); the decisions and their reasons are in
 [DECISIONS.md](DECISIONS.md).
+
+## Licence
+
+Apache-2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).

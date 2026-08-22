@@ -10,14 +10,29 @@
          COMMIT — a folder feed keys packages by id and version, so repacking an unchanged
          version swaps the contract under every pinned consumer while their extracted caches keep
          serving the old bits. That producer-side rule is the point of the boundary: an
-         in-project source file can absorb a surface change silently, a package cannot. -->
-    <Version>0.1.0</Version>
+         in-project source file can absorb a surface change silently, a package cannot.
+
+         0.2.0 (2026-08-22): the provider seam answered against its SECOND binding. A MINOR bump
+         and unambiguously breaking, which is the point of taking it before the package is
+         published rather than after. `EvalCompletion` gained a type parameter and lost
+         `OutputText`; its six usage counters moved into an `EvalUsage` record carried as an
+         OPTION, because a provider that reports none must not be indistinguishable from one that
+         ran free. `IEvalProvider` gained the same parameter and now takes a single `EvalRequest`
+         carrying a CALLER-SUPPLIED invocation key, so a replay looks up by what the harness
+         considers one invocation instead of by a rule the seam guessed. `DemandCensus.printReport`
+         gained a `ReportLabels` argument for the four lines only a domain can word. See DECISIONS
+         D9 and D10. -->
+    <Version>0.2.0</Version>
     <Authors>Andrew J. Willshire</Authors>
     <Company>Diametrical Ltd</Company>
     <Copyright>Copyright 2026 Diametrical Ltd</Copyright>
-    <!-- No <PackageLicenseExpression>: the licence is deliberately unset. See DECISIONS D5 —
-         choosing one is an act to be taken deliberately, not implied by the code having been
-         written to a standard that would allow it. -->
+    <!-- Apache-2.0, decided 2026-08-22 (DECISIONS D11, superseding D5's deliberate hold). The
+         repository was written to a public standard from its first commit precisely so that
+         choosing a licence would be a one-line act; this is that line. -->
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/fuaran-ui/fuaran-eval</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/fuaran-ui/fuaran-eval</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 </Project>

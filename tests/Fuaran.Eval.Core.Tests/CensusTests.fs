@@ -284,6 +284,69 @@ let tests =
                 } ]
 
           testList
+              "report labels"
+              [ test "the four domain-worded lines come from the labels, not the engine" {
+                    // The engine used to print a tier letter, two diagnostic track
+                    // names and two document paths of its own. They read as the
+                    // engine's vocabulary and were invisible to everyone except a
+                    // second adopting domain, which is the only party they were
+                    // ever wrong for.
+                    let cluster taskShort bait probe =
+                        { Kind = JudgeCluster(taskShort, "c3")
+                          Count = 2
+                          Families = [ "claude" ]
+                          Detail = ""
+                          SampleFiles = [ "f.json" ]
+                          BaitInduced = bait
+                          ProbeCorpus = probe }
+
+                    let report =
+                        { Cells = 3
+                          Clusters =
+                            [ cluster "040" true false, New
+                              cluster "041" false true, New
+                              cluster "042" false false, New ]
+                          Drift = []
+                          Coverage = Some { OpenRows = 2; OpenTokened = 1 } }
+
+                    let labels =
+                        { AdversarialAside = "ADVERSARIAL-ASIDE"
+                          ProbeCorpusAside = "PROBE-ASIDE"
+                          IntakeDraftHint = "INTAKE-HINT"
+                          UntokenedRowHint = "TOKEN-HINT" }
+
+                    let original = System.Console.Out
+                    use writer = new System.IO.StringWriter()
+
+                    let out =
+                        try
+                            System.Console.SetOut writer
+                            printReport seam labels 5 true report |> ignore
+                            writer.ToString()
+                        finally
+                            System.Console.SetOut original
+
+                    Expect.stringContains out "ADVERSARIAL-ASIDE" "the adversarial heading is worded by the domain"
+                    Expect.stringContains out "PROBE-ASIDE" "so is the probe heading"
+                    Expect.stringContains out "INTAKE-HINT" "so is the intake-draft hint"
+                    Expect.stringContains out "TOKEN-HINT" "so is the untokened-row hint"
+                }
+
+                test "the generic labels name nothing a domain owns" {
+                    // Not a tautology: it is the assertion that stops the next
+                    // convenient default from re-baking a domain's vocabulary in.
+                    let fields =
+                        [ genericLabels.AdversarialAside
+                          genericLabels.ProbeCorpusAside
+                          genericLabels.IntakeDraftHint
+                          genericLabels.UntokenedRowHint ]
+
+                    Expect.isEmpty
+                        (fields |> List.filter (fun f -> f.Contains ".md" || f.Contains "Tier-"))
+                        "the default wording carries no document path and no tier letter"
+                } ]
+
+          testList
               "the minimal seam"
               [ test "minimal switches the exclusions OFF, which is why it is not a default" {
                     let s = minimal "mine"

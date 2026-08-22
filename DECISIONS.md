@@ -95,7 +95,8 @@ equivalence this move rests on. They are noted as a genuine seam gap in D7.
 
 ## D5 — The licence is deliberately unset
 
-**2026-08-22.**
+**2026-08-22. Superseded the same day by D11 — the licence is Apache-2.0.** The record stays because
+it says what the hold was *for*, and D11 is the act it was waiting on.
 
 There is no `LICENSE` file and no `PackageLicenseExpression` in the build properties. This is not an
 oversight and should not be "fixed" by inference.
@@ -128,7 +129,9 @@ builds standalone and *packs* into somewhere it does not own.
 
 ## D7 — Two seam gaps the extraction found, recorded rather than fixed
 
-**2026-08-22.**
+**2026-08-22. Both closed the same day, at 0.2.0 — item 1 by D10, item 2 by D9.** Kept verbatim
+because it is the record of what was known before the second binding existed, and D9 is only
+interesting against it.
 
 The move surfaced two places where the substrate is less generic than its types claim. Both are
 recorded here rather than repaired, because repairing either changes observable output and would
@@ -151,17 +154,120 @@ have to be a versioned change with its consumers moving in step.
 Neither is a defect in the partition. They are the residue any first extraction carries, and naming
 them is what stops the next reader mistaking them for design.
 
-## D8 — Membership of the shared substrate version cohort is an open question
+## D8 — Not a member of the shared substrate version cohort
 
-**2026-08-22, surfaced and deliberately not decided.**
+**2026-08-22, surfaced. 2026-08-22, DECIDED: not a member.**
 
 The packages this library sits beside move as a system: when one cuts a new version, every other
 member that pins it is raised to that version in the same sweep. Whether `Fuaran.Eval.*` joins that
-set is a genuine question with arguments on both sides — it is substrate, which argues for; it is
+set was a genuine question with arguments on both sides — it is substrate, which argues for; it is
 consumed by evaluation harnesses that adopt deliberately and may reasonably lag, which argues
-against — and it is not a question this extraction is entitled to answer by acting.
+against — and it was not a question the extraction was entitled to answer by acting.
 
-**Surfaced to the operator on 2026-08-22. The default pending that decision is: NOT a member.** No
-membership list was edited in either direction. Recorded here so that a later reader finds a
-decision that was deferred rather than an omission, and so that the default is a choice with a date
-on it rather than the state nobody looked at.
+**The decision is: NOT a member.** The deciding argument is the second one, and this release is the
+evidence for it: two harnesses consume this library, they are on different release rhythms, and
+the version that matters to each is the one whose seam their scorer compiles against — not the one
+some third package happened to cut this week. A cohort rule would oblige both to move together for
+reasons neither could see in its own tree, which is the cost of cohort membership and buys nothing
+here: this library takes no dependency on any cohort member (D2), so it can never be the reason one
+of them is behind.
+
+What does NOT change is the producer-side rule, which was never cohort-specific: a change to the
+public surface advances `<Version>` in the same commit. That is what 0.2.0 is.
+
+Recorded as a decision with a date on it rather than a default nobody revisited. No membership list
+was edited in either direction, because the answer is the one the absence already implied — but an
+absence that was checked and an absence that was overlooked look identical, and this is the
+difference.
+
+## D9 — The provider result is a type parameter, decided against two bindings
+
+**2026-08-22, 0.2.0. This is the answer D7(2) said only a second binding could give.**
+
+D7(2) recorded that the seam had one binding and therefore one shape, and asked the next reader to
+treat `EvalCompletion` as provisional. The second binding arrived, and it disagreed in exactly the
+way that could not have been predicted from the first: its provider does not answer in text. It
+reduces a response to one of a small closed set of outcomes — one branch per emission kind it
+recognises, plus one for "no usable emission" — and the branch *is* the result. Its scorer matches
+on the case. Passing that through a seam whose completion carried `OutputText: string` would have
+forced it to render the branch into a string and re-derive it on the other side, which is not an
+adapter but a lossy encoding with the loss on the side that cares.
+
+So `EvalCompletion<'Result>` and `IEvalProvider<'Result>`. A text-shaped harness instantiates the
+parameter at `string` and is back where it started; a branch-shaped one instantiates it at its own
+union and keeps every case. **A type parameter is the only construct that carries discrimination
+without naming what is discriminated** — which is the constraint this library has to satisfy and
+the reason the obvious alternatives were rejected:
+
+- **A tagged payload (`Emitted of tag: string * body: string`) was rejected.** It carries the
+  branch, but as a string the domain must re-parse and cannot exhaust over, so the first thing every
+  adopter would write is a mapping back to the union it already had — a stringly-typed round trip
+  through a library that never reads either end of it.
+- **A union in the substrate (`Text | Structured | Failed`) was rejected harder.** Naming the branch
+  set is exactly the domain vocabulary D3 keeps out, and the set would be wrong for the third
+  binding for the same reason the text shape was wrong for the second.
+- **The natural objection to a type parameter is that the substrate can then do nothing with a
+  result.** True, and it is not a cost here: nothing in this library reads a completion, and the
+  house rule for when something needs to (CONTRIBUTING: "if your change needs an effect, take it as
+  a function value the caller supplies") already covers the day one does.
+
+Three consequences worth stating, because each was a deliberate choice inside the change:
+
+1. **The invocation key is caller-supplied.** `replay` used to derive its lookup key from the last
+   message's content. That is right for a conversational harness and wrong for a case-driven one,
+   whose invocations are identified by case id and whose prompts may repeat verbatim. `EvalRequest`
+   now carries `InvocationKey`, and `requestKeyedOnLastMessage` writes the old derivation at the
+   call site where a reader can see it being chosen.
+2. **Usage is an option, and the counters moved into their own record.** The second binding reports
+   no usage at all. Under a required record it would have had to pass zeros, and a cost figure over
+   that cohort would have read as measured rather than as absent — the same failure `ProvenanceStamp`
+   spends its whole design avoiding. `None` means unreported.
+3. **The seam still does not model failure.** A "failed" case belongs to a domain's own result union
+   if that domain wants one. Deciding that an emission is bad is a judgement about emitted content,
+   and D3 is the standing answer to who makes those.
+
+**The fake-replay refusal survives, and could not have failed to.** Refusing means raising, and
+raising needs no value of the type it declines to produce — so a miss is still a failure even for a
+domain whose union *could* express a polite one. That is checked by a test that hands `replay` a
+branch-shaped result type with a refusal case in it and requires the miss to throw anyway.
+
+## D10 — The report's four domain-worded lines are supplied, not baked
+
+**2026-08-22, 0.2.0. Closes D7(1).**
+
+`DemandCensus.printReport` printed a tier letter in one section heading, two diagnostic track names
+in another, and two document paths in its hints. Those were the first adopting domain's conventions,
+printed by the engine as if they were the engine's own — invisible to that domain, because they read
+correctly there, and wrong for every other.
+
+`ReportLabels` carries the four, supplied as an argument to `printReport`. It is deliberately NOT a
+field of `DomainCensusSeam`, per the shape D7(1) named: a new required field on the seam is a
+breaking change for every adopter, and these are presentational — a domain that wants the generic
+wording should not have to restate the whole census contract to decline them.
+
+`DemandSeams.genericLabels` names nothing, and unlike `DemandSeams.minimal` it *is* a safe default:
+a domain adopting it loses specificity, never an exclusion. The first adopting domain now passes its
+own labels and its report is byte-identical to the one the baked strings produced — which is the
+check that this was a move rather than a rewording.
+
+## D11 — The licence is Apache-2.0
+
+**2026-08-22, superseding D5.**
+
+D5 held the licence unset on the grounds that choosing one is a decision with consequences that
+outlive the code, and should be taken explicitly rather than arrive as a side effect of a file move.
+It has now been taken: **Apache-2.0**.
+
+The repository was written to a public standard from its first commit for exactly this moment, and
+the act was correspondingly small: a `LICENSE`, a `NOTICE`, and one `PackageLicenseExpression`. No
+source file changed, no reference had to be scrubbed, and the publication-boundary gate that made
+that true keeps running.
+
+The reasoning is the shape of the thing. This library is a substrate: a seam, a stamp, and a census
+that reads files. Its value to anyone who has it is that a harness can adopt it without inheriting
+assumptions, which is a property that grows with the number of people holding it and shrinks to
+nothing if nobody can. There is no version of this library whose *terms* are the interesting part.
+
+The gate stays and the standard stays. A licence permits publication; it does not maintain the
+property that makes publishing worth anything, and the day a convenient reference to something a
+reader cannot look up gets in is the day this stops being a substrate anyone else can hold.

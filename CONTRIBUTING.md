@@ -40,8 +40,11 @@ effect, take it as a function value the caller supplies.
 
 This project is written as if it were public: **no file here names another project, product,
 repository or tool, the command surface any of them are driven by, or the numbering of any planning
-system.** The licence is deliberately unset (DECISIONS D5), and writing to that standard now is what
-makes choosing one later a one-line act rather than a rewrite.
+system.** It is licensed Apache-2.0 (DECISIONS D11); the standard predates the licence, and holding
+it is what made choosing one a one-line act rather than a rewrite. It stays, because a licence
+permits publication and does nothing to keep the thing worth publishing.
+
+By contributing you agree that your contribution is licensed under the same terms.
 
 `gates/check-publication-boundary.ps1` enforces it over the tracked file set on every run, and
 prints the residue it knowingly carries even when it is green. If your change trips it, the fix is

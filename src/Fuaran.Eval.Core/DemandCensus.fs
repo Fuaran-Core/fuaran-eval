@@ -508,7 +508,16 @@ let runCensus
       Coverage = catalogDir |> Option.map (fun _ -> catalogCoverage log) }
 
 /// Print the report; returns the exit code (1 = intake violation or drift).
-let printReport (seam: DomainCensusSeam) (minCount: int) (markdown: bool) (report: CensusReport) : int =
+///
+/// `labels` supplies the four lines only a domain can word — see `ReportLabels`.
+/// `DemandSeams.genericLabels` is the wording for a domain that has none.
+let printReport
+    (seam: DomainCensusSeam)
+    (labels: ReportLabels)
+    (minCount: int)
+    (markdown: bool)
+    (report: CensusReport)
+    : int =
     let strong = isStrong minCount
 
     let inBucket b =
@@ -529,8 +538,7 @@ let printReport (seam: DomainCensusSeam) (minCount: int) (markdown: bool) (repor
     let bait = report.Clusters |> List.filter (fun (c, _) -> c.BaitInduced)
 
     if not (List.isEmpty bait) then
-        printfn
-            $"── BAIT-INDUCED (Tier-C parse — the induced failure working; excluded from demand evidence) — {List.length bait} ──"
+        printfn $"── BAIT-INDUCED ({labels.AdversarialAside}; excluded from demand evidence) — {List.length bait} ──"
 
         for c, _ in bait do
             printfn $"  {c.Label}: ×{c.Count} ({familiesStr c})"
@@ -545,8 +553,7 @@ let printReport (seam: DomainCensusSeam) (minCount: int) (markdown: bool) (repor
         |> List.filter (fun (c, _) -> c.ProbeCorpus && not c.BaitInduced)
 
     if not (List.isEmpty probe) then
-        printfn
-            $"── PROBE-CORPUS (prior-alignment / custom-sentinel diagnostics — the probe working; excluded from demand evidence) — {List.length probe} ──"
+        printfn $"── PROBE-CORPUS ({labels.ProbeCorpusAside}; excluded from demand evidence) — {List.length probe} ──"
 
         for c, _ in probe do
             printfn $"  {c.Label}: ×{c.Count} ({familiesStr c})"
@@ -566,7 +573,7 @@ let printReport (seam: DomainCensusSeam) (minCount: int) (markdown: bool) (repor
 
     if markdown && not (List.isEmpty newOnes) then
         let today = DateTime.UtcNow.ToString "yyyy-MM-dd"
-        printfn "\n  drafted intake rows (paste into docs/CAPABILITY-DEMAND-LOG.md):"
+        printfn $"\n  drafted intake rows ({labels.IntakeDraftHint}):"
 
         for c, _ in newOnes do
             printfn $"  {draftRow today c}"
@@ -606,7 +613,7 @@ let printReport (seam: DomainCensusSeam) (minCount: int) (markdown: bool) (repor
 
         if cov.OpenTokened < cov.OpenRows then
             printfn
-                "  an untokened row cannot drift, so the check above is silent about it - author the tokens (tools/demand-log-sync.md)"
+                $"  an untokened row cannot drift, so the check above is silent about it - {labels.UntokenedRowHint}"
     | None -> ()
 
     if not (List.isEmpty report.Drift) then

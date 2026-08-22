@@ -64,6 +64,49 @@ type DomainCensusSeam =
         IsProbeCorpusTask: string -> bool
     }
 
+/// The four places the census's printed report says something only a domain can
+/// say. Supplied ALONGSIDE `DomainCensusSeam` rather than as fields of it,
+/// deliberately: a new required field on the seam is a breaking change for every
+/// adopter, and these are presentational — a domain that wants the generic
+/// wording should not have to restate the whole census contract to decline them.
+///
+/// The generic set below names nothing. It is the honest default in a way a
+/// pre-filled one is not: the first adopting domain's tier letters and document
+/// paths were once printed by the engine itself, which read as the engine's own
+/// vocabulary and was invisible to everyone except the second adopter.
+type ReportLabels =
+    {
+        /// Why an adversarial-tier cluster is being shown but excluded, rendered
+        /// as `── BAIT-INDUCED (<aside>; excluded from demand evidence) — N ──`.
+        /// A domain that names its adversarial tier says so here.
+        AdversarialAside: string
+
+        /// The same, for the diagnostic-probe clusters:
+        /// `── PROBE-CORPUS (<aside>; excluded from demand evidence) — N ──`. A
+        /// domain that runs named diagnostic tracks names them here.
+        ProbeCorpusAside: string
+
+        /// What to do with the drafted intake rows, rendered as
+        /// `drafted intake rows (<hint>):`. A domain that keeps its intake ledger
+        /// at a known path points at it here.
+        IntakeDraftHint: string
+
+        /// What to do about an open ledger row carrying no catalog token, printed
+        /// after the sentence explaining why the drift check cannot see it. A
+        /// domain with tooling for it points at that tooling here.
+        UntokenedRowHint: string
+    }
+
+/// Report labels that name nothing outside the census itself — the wording for a
+/// domain that has no tier vocabulary, no named diagnostic tracks, and no
+/// document to point a reader at. Unlike `minimal` this IS a safe default: a
+/// domain that adopts it loses only specificity, never an exclusion.
+let genericLabels: ReportLabels =
+    { AdversarialAside = "the induced failure working"
+      ProbeCorpusAside = "the probe working"
+      IntakeDraftHint = "paste into the intake ledger"
+      UntokenedRowHint = "author the tokens" }
+
 /// A seam for a domain with no corpus structure to exploit — every predicate
 /// off, every id verbatim, typed verdicts only. Useful as a starting point and
 /// as the shape a test fixture wants; NOT a default, because a domain that

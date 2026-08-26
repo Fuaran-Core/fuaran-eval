@@ -40,8 +40,8 @@
          choosing a licence would be a one-line act; this is that line. -->
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/fuaran-ui/fuaran-eval</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/fuaran-ui/fuaran-eval</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Fuaran-Core/fuaran-eval</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Fuaran-Core/fuaran-eval</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 </Project>

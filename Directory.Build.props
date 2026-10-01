@@ -30,8 +30,12 @@
          files. It closes the two gaps the second consumer's bootstrap recorded: there was no
          typed result-cell record and no writer or reader for one, so each harness hand-rolled the
          field names the census keys off; and the re-gate sidecar row was typed with no codec, so
-         one documented artefact acquired one spelling per harness. See DECISIONS D12. -->
-    <Version>0.3.0</Version>
+         one documented artefact acquired one spelling per harness. See DECISIONS D12.
+
+         0.3.1 (2026-10-01): a PATCH, package metadata only. The project and repository URLs
+         follow the repository to its new GitHub organisation; no type, member, signature or
+         printed string changed, so the public surface is byte-identical to 0.3.0. -->
+    <Version>0.3.1</Version>
     <Authors>Andrew J. Willshire</Authors>
     <Company>Diametrical Ltd</Company>
     <Copyright>Copyright 2026 Diametrical Ltd</Copyright>

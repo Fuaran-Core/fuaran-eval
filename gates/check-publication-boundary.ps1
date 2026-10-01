@@ -4,8 +4,8 @@
     Publication-boundary sweep: this repository must name nothing outside itself.
 
 .DESCRIPTION
-    The library is written to a public standard while the licence is deliberately unset
-    (DECISIONS D5). "Written to a public standard" is a claim, and a claim without a check decays
+    The library is public and Apache-2.0 (DECISIONS D11), and was written to a public standard
+    before either was decided (D5). "Written to a public standard" is a claim, and a claim without a check decays
     one convenient reference at a time — invisibly, because nothing breaks. By the time anyone
     looks, the tidy-up is a rewrite, which is the outcome the standard exists to avoid.
 

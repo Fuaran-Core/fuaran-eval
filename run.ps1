@@ -8,8 +8,8 @@
 #   pwsh ./run.ps1 -SkipTests      skip the Expecto suite
 #
 # The publication-boundary sweep runs with the ordinary gate rather than beside it, and there is
-# deliberately NO switch to skip it. This repository is written to a public standard while the
-# licence is held back as a separate decision (DECISIONS D5), and a standard nobody checks decays
+# deliberately NO switch to skip it. This repository is public and Apache-2.0 (DECISIONS D11), and
+# was written to that standard before either was decided (D5); a standard nobody checks decays
 # one convenient reference at a time until the tidy-up is a rewrite. It is fast, it needs no
 # build, and it prints the residue it knowingly carries on every run — including a green one.
 #Requires -Version 7.0
